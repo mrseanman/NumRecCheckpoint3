@@ -5,6 +5,7 @@ Euler Method & RK4
 '''
 
 import numpy as np
+import matplotlib.pyplot as pl
 
 class NumIntegrate(object):
 
@@ -48,3 +49,12 @@ class NumIntegrate(object):
             currX += delta
             currY += delta*(k1/6. + k2/3. + k3/3. + k4/6.)
             params = [currX, currY]
+
+
+
+    def plot(self, title):
+        xVals = [item[0] for item in self.vals]
+        yVals = [item[1] for item in self.vals]
+        pl.plot(xVals, yVals)
+        pl.title(title)
+        pl.show()
