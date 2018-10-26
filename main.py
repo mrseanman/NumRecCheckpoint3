@@ -4,6 +4,7 @@ def main():
     do = Organise()
     #do.eulerIntegrate()
     #do.RK4Integrate()
-    do.differenceBetweenMethods()
+    #do.differenceBetweenMethods()
+    do.testInterpolate()
 
 main()

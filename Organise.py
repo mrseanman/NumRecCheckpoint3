@@ -1,7 +1,9 @@
 from ChargeDistribution import ChargeDistribution
 from NumIntegrate import NumIntegrate
+from Interpolate import Interpolate
 
 import matplotlib.pyplot as pl
+import numpy as np
 
 
 class Organise(object):
@@ -71,4 +73,15 @@ class Organise(object):
 
             pl.scatter( xVals, differenceData, marker='.', s=10)
             pl.title("Values of (RK4 - Euler) integratin methods")
+            pl.show()
+
+        def testInterpolate(self):
+            data = [[0,1],[1,0],[2,1],[3,0],[4,1],[5,0]]
+            inter = Interpolate(data)
+            xVals = np.linspace(-3., 7., num=1000)
+            yVals = []
+            for x in xVals:
+                yVals.append(inter.eval(x))
+
+            pl.plot(xVals, yVals)
             pl.show()
