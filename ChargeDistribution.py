@@ -15,10 +15,14 @@ class ChargeDistribution:
 
     #..............................................
     # Methods for the user of this class
-
+    def evalAnalytic(self, x):
+        y = -1.85185*(1.+x)**3. - 5.55556*(5. + 4.*x + x**2.)*math.exp(-x) + 30.2031555898278
+        return y
     # To evaluate the y-value of the charge for an input x-value
     def evaluate(self, params):
-        x = params[0]
+        if type(params) is list:
+            x = params[0]
+
         if( x < self.x1): return 0
         if( x < self.x2): return self._shape( self.x1, self.x2, x)
         if( x < self.x3): return -self._shape( self.x3, self.x2, x)

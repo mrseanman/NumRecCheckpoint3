@@ -5,6 +5,6 @@ def main():
     #do.eulerIntegrate()
     #do.RK4Integrate()
     #do.differenceBetweenMethods()
-    do.testInterpolate()
-
+    #do.fieldThenVoltage()
+    do.compare()
 main()

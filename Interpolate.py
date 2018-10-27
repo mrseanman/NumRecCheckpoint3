@@ -12,6 +12,9 @@ class Interpolate(object):
         self.xMin = min(self.xVals)
 
     def eval(self, x):
+        if type(x) is list:
+            x = x[0]
+
         if x > self.xMax:
             lastDiff = (self.yVals[-1]-self.yVals[-2]) / (self.xVals[-1]-self.xVals[-2])
             y = lastDiff * (x - self.xMax) + self.yVals[-1]
@@ -20,8 +23,11 @@ class Interpolate(object):
             y = firstDiff * (x - self.xMin) + self.yVals[0]
         else:
             index = self.findIndex(x)
-            diff = (self.yVals[index+1]-self.yVals[index]) / (self.xVals[index+1]-self.xVals[index])
-            y = diff*(x-self.xVals[index]) + self.yVals[index]
+            if self.xVals[index] == x:
+                y = self.xVals[index]
+            else:
+                diff = (self.yVals[index+1]-self.yVals[index]) / (self.xVals[index+1]-self.xVals[index])
+                y = diff*(x-self.xVals[index]) + self.yVals[index]
 
         return y
 

@@ -4,13 +4,21 @@ from Interpolate import Interpolate
 
 import matplotlib.pyplot as pl
 import numpy as np
-
+import copy
 
 class Organise(object):
 
-        def quickPlot(self):
-            ChargeDistr = ChargeDistribution()
-            ChargeDiss.show()
+        #finds difference between integral2.vals[i][1] and
+        #integral2.vals[i][1] for every i in integral2.vals
+        def difference(self, integral1, integral2):
+            interpolate1 = Interpolate(integral1.vals)
+            differenceData = []
+
+            for i in range(len(integral2.vals)):
+                difference = integral2.vals[i][1] - interpolate1.eval(integral2.vals[i][0])
+                differenceData.append([integral2.vals[i][0], difference])
+
+            return differenceData
 
         def eulerIntegrate(self):
             delta = 0.1
@@ -35,53 +43,99 @@ class Organise(object):
             integrate.RK4(chargeDistr.evaluate, delta, xRange, y0)
             integrate.plot("RK4 integration of Charge Distribution")
 
-        def differenceBetweenMethods(self):
-            delta = 0.01
+
+        def compare(self):
+            delta = 0.2
             xRange = [-2., 2.]
             y0 = 0.
 
-            integrateEuler = NumIntegrate()
-            integrateRK4 = NumIntegrate()
             chargeDistr = ChargeDistribution()
 
+            integrateEuler = NumIntegrate()
+            integrateRK4 = NumIntegrate()
+
+            #evaluate E
+            #-------------------------------------------------------------------
             integrateEuler.euler(chargeDistr.evaluate, delta, xRange, y0)
             integrateRK4.RK4(chargeDistr.evaluate, delta, xRange, y0)
 
+
+            #plot both
+            #-------------------------------------------------------------------
+            eulerXVals = [item[0] for item in integrateEuler.vals]
+            eulerYVals = [item[1] for item in integrateEuler.vals]
+
+            RK4XVals = [item[0] for item in integrateRK4.vals]
+            RK4YVals = [item[1] for item in integrateRK4.vals]
+
             fig = pl.figure()
             ax1 = fig.add_subplot(111)
-
-            eulerX = [item[0] for item in integrateEuler.vals]
-            eulerY = [item[1] for item in integrateEuler.vals]
-            RK4X = [item[0] for item in integrateRK4.vals]
-            RK4Y = [item[1] for item in integrateRK4.vals]
-
-            ax1.scatter(eulerX, eulerY, s=10, c='b', marker=".", label='Euler')
-            ax1.scatter(RK4X, RK4Y, s=10, c='r', marker=".", label='RK4')
+            ax1.scatter(eulerXVals, eulerYVals, s=20, c='b', marker="+", label='Euler')
+            ax1.scatter(RK4XVals, RK4YVals, s=20, c='r', marker="+", label='RK4')
             pl.legend(loc='upper left')
             pl.show()
 
-            self.difference(integrateEuler, integrateRK4)
-
-        def difference(self, integral1, integral2):
-            differenceData = []
-            xVals = []
-
-            for i in range(len(integral1.vals)):
-                xVals.append(integral1.vals[i][0])
-                difference = integral2.vals[i][1] - integral1.vals[i][1]
-                differenceData.append(difference)
-
-            pl.scatter( xVals, differenceData, marker='.', s=10)
-            pl.title("Values of (RK4 - Euler) integratin methods")
+            #plot difference
+            #-------------------------------------------------------------------
+            differenceData = self.difference(integrateEuler, integrateRK4)
+            differenceXVals = [item[0] for item in differenceData]
+            differenceYVals = [item[1] for item in differenceData]
+            pl.scatter(differenceXVals, differenceYVals, s=20, marker="+")
+            pl.title("Difference:   RK4 - Euler")
             pl.show()
 
-        def testInterpolate(self):
-            data = [[0,1],[1,0],[2,1],[3,0],[4,1],[5,0]]
-            inter = Interpolate(data)
-            xVals = np.linspace(-3., 7., num=1000)
-            yVals = []
-            for x in xVals:
-                yVals.append(inter.eval(x))
+            #find error
+            #-------------------------------------------------------------------
+            deltaRatio = 10000.
 
-            pl.plot(xVals, yVals)
+            integrateEulerTrueVals = NumIntegrate()
+            integrateRK4TrueVals = NumIntegrate()
+            integrateEulerTrueVals.euler(chargeDistr.evaluate, delta/deltaRatio, xRange, y0)
+            integrateRK4TrueVals.RK4(chargeDistr.evaluate, delta/deltaRatio, xRange, y0)
+
+            errEuler = self.difference(integrateEulerTrueVals, integrateEuler)
+            errEulerXVals = [item[0] for item in errEuler]
+            errEulerYVals = [item[1] for item in errEuler]
+
+            errRK4 = self.difference(integrateRK4TrueVals, integrateRK4)
+            errRK4XVals = [item[0] for item in errRK4]
+            errRK4YVals = [item[1] for item in errRK4]
+
+            #plot error
+            #-------------------------------------------------------------------
+            fig = pl.figure()
+            ax1 = fig.add_subplot(111)
+            ax1.scatter(errEulerXVals, errEulerYVals, s=20, c='b', marker="+", label='Euler Error')
+            ax1.scatter(errRK4XVals, errRK4YVals, s=20, c='r', marker="+", label='RK4 Error')
+            ax1.set_title("Difference between calculated values and 'true' values for Euler and RK4")
+            pl.legend(loc='upper left')
             pl.show()
+
+            #RK4 on separate axes
+            #because error too small
+            maxY = max(errRK4YVals)
+            print("maximum rk4 error: " + str(maxY))
+            margin = maxY/10.
+            pl.title("RK4 Error")
+            pl.ylim(-maxY - margin, maxY + margin)
+            pl.scatter(errRK4XVals, errRK4YVals, marker='+')
+            pl.show()
+
+        def fieldThenVoltage(self):
+            delta = 0.01
+            xRange = [-2., 2.]
+            y0Field = 0.
+            y0Voltage = 0.
+
+            integrateField = NumIntegrate()
+            integrateVoltage = NumIntegrate()
+            chargeDistr = ChargeDistribution()
+
+            integrateField.RK4(chargeDistr.evaluate, delta, xRange, y0Field)
+            integrateField.plot("Field")
+
+            fieldData = copy.deepcopy(integrateField.vals)
+            interpolatedField = Interpolate(fieldData)
+
+            integrateVoltage.RK4(interpolatedField.eval, delta, xRange, y0Voltage)
+            integrateVoltage.plot("Voltage")
