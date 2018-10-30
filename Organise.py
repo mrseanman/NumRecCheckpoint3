@@ -135,16 +135,11 @@ class Organise(object):
             integrateField.plot("Field")
 
             fieldData = copy.deepcopy(integrateField.vals)
-            #putting in minus sign
-            fieldX = [item[0] for item in fieldData]
-            fieldY = [item[1] for item in fieldData]
-            minusFieldY = [-item for item in fieldY]
-
-            for i in range(len(fieldX)):
-                fieldData.append( [fieldX[i], minusFieldY[i]] )
+            #MINUS SIGN
+            minusField = [[item[0], -item[1]] for item in fieldData]
 
             #creates instance of interpolated field
-            interpolatedField = Interpolate(fieldData)
+            interpolatedField = Interpolate(minusField)
 
             integrateVoltage.RK4(interpolatedField.eval, delta, xRange, y0Voltage)
             integrateVoltage.plot("Voltage")
