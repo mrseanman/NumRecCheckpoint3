@@ -52,9 +52,11 @@ class NumIntegrate(object):
 
 
 
-    def plot(self, title):
+    def plot(self, title, labels):
         xVals = [item[0] for item in self.vals]
         yVals = [item[1] for item in self.vals]
         pl.plot(xVals, yVals)
         pl.title(title)
+        pl.xlabel(labels[0])
+        pl.ylabel(labels[1])
         pl.show()

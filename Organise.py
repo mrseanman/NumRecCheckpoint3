@@ -45,7 +45,7 @@ class Organise(object):
 
 
         def compare(self):
-            delta = 0.2
+            delta = 0.05
             xRange = [-2., 2.]
             y0 = 0.
 
@@ -73,6 +73,9 @@ class Organise(object):
             ax1.scatter(eulerXVals, eulerYVals, s=20, c='b', marker="+", label='Euler')
             ax1.scatter(RK4XVals, RK4YVals, s=20, c='r', marker="+", label='RK4')
             pl.legend(loc='upper left')
+            pl.title("RK4 and Euler")
+            pl.xlabel("x")
+            pl.ylabel("field")
             pl.show()
 
             #plot difference
@@ -82,6 +85,8 @@ class Organise(object):
             differenceYVals = [item[1] for item in differenceData]
             pl.scatter(differenceXVals, differenceYVals, s=20, marker="+")
             pl.title("Difference:   RK4 - Euler")
+            pl.xlabel("x")
+            pl.ylabel("RK4 - Euler")
             pl.show()
 
             #find error
@@ -109,6 +114,8 @@ class Organise(object):
             ax1.scatter(errRK4XVals, errRK4YVals, s=20, c='r', marker="+", label='RK4 Error')
             ax1.set_title("Difference between calculated values and 'true' values for Euler and RK4")
             pl.legend(loc='upper left')
+            pl.xlabel("x")
+            pl.ylabel("Error")
             pl.show()
 
             #RK4 on separate axes
@@ -119,6 +126,8 @@ class Organise(object):
             pl.title("RK4 Error")
             pl.ylim(-maxY - margin, maxY + margin)
             pl.scatter(errRK4XVals, errRK4YVals, marker='+')
+            pl.xlabel("x")
+            pl.ylabel("Error")
             pl.show()
 
         def fieldThenVoltage(self):
@@ -132,7 +141,7 @@ class Organise(object):
             chargeDistr = ChargeDistribution()
 
             integrateField.RK4(chargeDistr.evaluate, delta, xRange, y0Field)
-            integrateField.plot("Field")
+            integrateField.plot("Field", ["x","Field"])
 
             fieldData = copy.deepcopy(integrateField.vals)
             #MINUS SIGN
@@ -142,4 +151,4 @@ class Organise(object):
             interpolatedField = Interpolate(minusField)
 
             integrateVoltage.RK4(interpolatedField.eval, delta, xRange, y0Voltage)
-            integrateVoltage.plot("Voltage")
+            integrateVoltage.plot("Voltage",["x", "voltage"])
